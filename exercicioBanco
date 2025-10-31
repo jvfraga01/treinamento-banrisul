@@ -1,0 +1,348 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace desafioAula5
+{
+
+    public class Cliente
+    {
+        protected string nome;
+
+        public string Nome
+        {
+            get { return nome; }
+            set { nome = value; }
+        }
+
+
+        private string cpf;
+
+        public string Cpf
+        {
+            get { return cpf; }
+            set { cpf = value; }
+        }
+        public List<ContaBancaria> Contas { get; set; } = new List<ContaBancaria>();
+
+
+        public Cliente(string nome, string cpf)
+        {
+            Nome = nome;
+            Cpf = cpf;
+            Contas = new List<ContaBancaria>();
+        }
+
+
+    }
+
+    public abstract class ContaBancaria
+    {
+        private decimal saldo;
+
+        public decimal Saldo
+        {
+            get {return saldo; }
+            set {saldo = value;}
+        }
+
+        protected int idConta;
+        public int IDconta
+        {
+            get { return idConta; }
+            set { idConta = value; }
+        }
+
+        public Cliente Titular { get; set;}
+
+        public ContaBancaria(int idConta, Cliente titular)
+        {
+            IDconta = idConta;
+            Titular = titular;
+            Saldo = 0;
+        }
+
+    }
+
+
+    public class ContaPoupança : ContaBancaria
+    {
+
+        public decimal juros;
+        public ContaPoupança(int idConta, Cliente titular) : base(idConta, titular) { }
+
+    }
+
+    public class ContaCorrente : ContaBancaria
+    {
+        public ContaCorrente(int idConta, Cliente titular) : base(idConta, titular) { }
+    }
+
+
+    class Banco
+    {
+        static List<Cliente> clientes = new List<Cliente>();
+        static int contadorContas = 1;
+
+        static void Main()
+        {
+            
+
+            Console.WriteLine("Iniciando o sistema bancário...");
+
+            while (true)
+            {
+                Console.WriteLine("\nBem vindo ao menu do banco! Escolha uma das opções abaixo:\n");
+                Console.WriteLine("1- Realizar cadastro");
+                Console.WriteLine("2- Criar conta");
+                Console.WriteLine("3- Lista de clientes");
+                Console.WriteLine("4- Listar Contas");
+                Console.WriteLine("5- Visualizar saldo");
+                Console.WriteLine("6- Fazer depósito");
+                Console.WriteLine("7- Realizar saque");
+                Console.WriteLine("8- Realizar transferência");
+                Console.WriteLine("9- Sair");
+                Console.WriteLine("Digite a opção escolhida: ");
+                string opcao = (Console.ReadLine());
+
+                if (opcao == "9")
+                {
+                    break;
+                }
+                
+
+
+                switch (opcao)
+                {
+                    case "1":
+                        CadastrarCliente();
+                        break;
+                    case "2":
+                        CriarConta();
+                        break;
+                    case "3":
+                        ListarClientes();
+                        break;
+                    case "4":
+                        ListarContas();
+                        break;
+                    case "5":
+                        VisualizarSaldo();
+                        break;
+                    case "6":
+                        Depositar();
+                        break;
+                    case "7":
+                        Sacar();
+                        break;
+                    case "8":
+                        Transferir();
+                        break;
+
+                    default:
+                        Console.WriteLine("Opção inválida. Tente novamente.");
+                        break;
+                }
+
+
+            }
+        }
+
+        public static void CadastrarCliente()
+        {
+            Cliente c1 = new Cliente("1","1");
+
+            Console.WriteLine("Digite o seu nome: ");
+            c1.Nome = Console.ReadLine();
+            Console.WriteLine("Digite seu CPF: ");
+            c1.Cpf = Console.ReadLine();
+
+            clientes.Add(c1);
+
+
+            Console.WriteLine($"Cliente {c1.Nome} e {c1.Cpf} criado com sucesso.");
+        }
+        public static void CriarConta()
+        {
+
+
+            Console.Write("CPF do cliente: ");
+            string cpf = Console.ReadLine();
+
+            foreach (var cliente in clientes)
+            {
+                if (cliente.Cpf == cpf)
+                {
+                    Console.Write("Tipo de conta (1-Corrente, 2-Poupança): ");
+                    int tipo = int.Parse(Console.ReadLine());
+
+                    ContaBancaria conta;
+                    if (tipo == 1)
+                    {
+                       conta = new ContaCorrente(contadorContas++, cliente);
+                    }else
+                    {
+                      conta = new ContaPoupança(contadorContas++, cliente);
+                    }
+                    
+                    cliente.Contas.Add(conta);
+                    Console.WriteLine($"Conta criada! ID: {conta.IDconta}");
+                    return;
+                }
+            }
+            Console.WriteLine("CPF não encontrado.");
+        }
+
+    
+    
+
+
+    public static void ListarClientes()
+        {
+                   
+            if (clientes.Count == 0)
+            {
+                Console.WriteLine("Nenhum cliente cadastrado.");
+                return;
+            }
+
+            Console.WriteLine("Lista de clientes:");
+            foreach (var cliente in clientes)
+            {
+                Console.WriteLine($"Cliente: {cliente.Nome} - CPF: {cliente.Cpf}");
+            }
+
+        }
+
+        public static void ListarContas()
+        {
+            
+            
+            if (clientes.Count == 0)
+            {
+                Console.WriteLine("Nenhuma conta encontrada.");
+                return;
+            }
+
+            foreach (var cliente in clientes)
+            {
+                foreach (var conta in cliente.Contas)
+                {
+                    string tipoConta = conta is ContaCorrente ? "Corrente" : "Poupança";
+                    Console.WriteLine($"Titular: {cliente.Nome} | Tipo: {tipoConta} | ID: {conta.IDconta}");
+                }
+            }
+
+        }
+
+        public static void VisualizarSaldo()
+        {
+            Console.WriteLine("Diga o cpf da conta de quem deseja acessar: ");
+            string cpf = Console.ReadLine();
+
+            foreach (var cliente in clientes)
+            {
+                if (cliente.Cpf == cpf)
+                {
+                    foreach (var conta in cliente.Contas)
+                    {
+                        string tipoConta = conta is ContaCorrente ? "Corrente" : "Poupança";
+                        Console.WriteLine($"ID: {conta.IDconta} | Tipo: {tipoConta} | Saldo: {conta.Saldo} | Titular: {cliente.Nome}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Usuario não encontrado.");
+                }
+
+            }
+        }
+
+            public static void Depositar()
+        {
+            Console.WriteLine("Diga o cpf da conta de quem deseja acessar: ");
+            string cpf = Console.ReadLine();
+
+            foreach (var cliente in clientes)
+            {
+
+                foreach (var conta in cliente.Contas)
+                    {
+                        Console.WriteLine("Insira o numero do ID: ");
+                            int id = int.Parse(Console.ReadLine());
+                    
+                        if (conta.IDconta == id)
+                        {
+                        Console.WriteLine("Insira o valor a ser depositado: ");
+                        decimal valorDepositado = decimal.Parse(Console.ReadLine());    
+
+                        conta.Saldo += valorDepositado;
+
+                        Console.WriteLine($"ID: {conta.IDconta} | Saldo: {conta.Saldo} | Titular: {cliente.Nome}");
+                        }
+                    }
+            }
+
+        }
+
+        public static void Sacar()
+        {
+            foreach (var cliente in clientes)
+            {
+
+                foreach (var conta in cliente.Contas)
+                {
+                    Console.WriteLine("Insira o numero do ID: ");
+                    int id = int.Parse(Console.ReadLine());
+
+                    if (conta.IDconta == id)
+                    {
+                        Console.WriteLine("Insira o valor a ser sacado: ");
+                        decimal valorSacado = decimal.Parse(Console.ReadLine());
+                         if (valorSacado <= conta.Saldo)
+                        {
+                            conta.Saldo -= valorSacado;
+                        }
+                        
+
+                        Console.WriteLine($"ID: {conta.IDconta} | Saldo: {conta.Saldo} | Titular: {cliente.Nome}");
+                    }
+                }
+            }
+
+
+
+        }
+
+        public static void Transferir()
+        {
+            foreach (var cliente in clientes)
+            {
+
+                foreach (var conta in cliente.Contas)
+                {
+                    Console.WriteLine("Insira o numero do ID: ");
+                    int id = int.Parse(Console.ReadLine());
+
+                    if (conta.IDconta == id)
+                    {
+                        Console.WriteLine("Insira o valor a ser sacado: ");
+                        decimal valorSacado = decimal.Parse(Console.ReadLine());
+                        if (valorSacado <= conta.Saldo)
+                        {
+                            conta.Saldo -= valorSacado;
+                        }
+
+
+                        Console.WriteLine($"ID: {conta.IDconta} | Saldo: {conta.Saldo} | Titular: {cliente.Nome}");
+                    }
+                }
+            }
+
+        }
+
+
+    }
+}
