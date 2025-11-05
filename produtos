@@ -1,0 +1,47 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp13
+{
+    public class Produto
+    {
+        
+        string Nome { get; set; }
+        decimal Preco { get;set;}
+        private int QuantidadeEstoque { get; set; }
+        string Categoria { get; set; }
+        public readonly int codigoProduto;
+        private static int novoCodigo;
+        decimal ValorTotalEstoque;
+
+        public int CodigoProduto
+        {
+            get { return codigoProduto;}
+        }
+
+        public Produto(string nome, decimal preco,int quantidade,string categoria)
+        {
+            novoCodigo++;
+            Nome = nome;
+            Preco = preco;
+            QuantidadeEstoque = quantidade;
+            Categoria = categoria;
+            codigoProduto = novoCodigo;
+            ValorTotalEstoque = preco * quantidade;
+        }
+        public static void AdicionarQuantidade()
+        {
+            
+        }
+
+    }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+        }
+    }
+}
